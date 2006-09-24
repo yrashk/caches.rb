@@ -22,7 +22,7 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')                                                                                                             
 end
 
-PKG_VERSION = "0.2"                                                                                                                                
+PKG_VERSION = "0.2.0"                                                                                                                                
 PKG_NAME = "cachesrb"                                                                                                                                  
 PKG_FILE_NAME = "#{PKG_NAME}-#{PKG_VERSION}"                                                                                                         
                                                                                                                                                      
