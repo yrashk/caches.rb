@@ -1,0 +1,24 @@
+Caches.rb
+=========
+
+Caches.rb is a simplistic method cache for Ruby
+
+Simply do `BaseClass.extend Caches' and you will be able to specify
+
+caches :method_name
+or
+caches :method_name, :timeout => 2.minutes
+
+Default timeout is 60 seconds.
+
+What is important is that this solution caches calls with arguments. For example, if you will make a method_name(“Hello”) call you’ll get next method_name(“Hello”) cached, but method_name(“Bye”) will not be cached.
+
+Also you will be able to invalidate cache explicitly with invalidate_method_name_cache and invalidate_all_method_name_caches calls.
+
+Also you can invalidate caches with
+
+invalidate_all_caches
+or
+invalidate_all_caches :except => :name
+or
+invalidate_all_caches :except => [:name, :name1]
