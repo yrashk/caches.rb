@@ -41,7 +41,8 @@ spec = Gem::Specification.new do |s|
   s.autorequire  = 'caches'                                                                                                                          
   s.author = "Yurii Rashkovskii"                                                                                                                         
   s.email = "yrashk@verbdev.com"                                                                                                                      
-  s.homepage = "http://rashkovskii.com/articles/tag/caches"                                                                                                 
+  s.homepage = "http://rashkovskii.com/articles/tag/caches"
+  s.rubyforge_project = "cachesrb"                                                                                                 
 end                                                                                                                                                  
                                                                                                                                                      
 Rake::GemPackageTask.new(spec) do |p|                                                                                                                
