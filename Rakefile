@@ -1,17 +1,11 @@
 require 'rake'                                                                                                                                       
-require 'rake/testtask'                                                                                                                              
+require 'spec/rake/spectask'
 require 'rake/rdoctask'                                                                                                                              
 require 'rake/gempackagetask'                                                                                                                        
                                                                                                                                                      
 desc 'Default: run unit tests.'                                                                                                                      
-task :default => :test                                                                                                                               
+task :default => :spec                                                                                                                               
                                                                                                                                                      
-desc 'Test the request_routing plugin.'                                                                                                              
-Rake::TestTask.new(:test) do |t|                                                                                                                     
-  t.libs << 'lib'                                                                                                                                    
-  t.pattern = 'test/**/*_test.rb'                                                                                                                    
-  t.verbose = true                                                                                                                                   
-end                                                                                                                                                  
                                                                                                                                                      
 desc 'Generate documentation for the Caches.rb plugin.'                                                                                      
 Rake::RDocTask.new(:rdoc) do |rdoc|                                                                                                                  
@@ -22,12 +16,12 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')                                                                                                             
 end
 
-PKG_VERSION = "0.2.0"                                                                                                                                
+PKG_VERSION = "0.3.0"                                                                                                                                
 PKG_NAME = "cachesrb"                                                                                                                                  
 PKG_FILE_NAME = "#{PKG_NAME}-#{PKG_VERSION}"                                                                                                         
                                                                                                                                                      
 PKG_FILES = FileList[                                                                                                                                
-    "lib/**/*", "test/**/*", "[A-Z]*", "Rakefile", "init.rb"                                                                          
+    "lib/**/*", "spec/**/*", "[A-Z]*", "Rakefile", "init.rb"                                                                          
 ].exclude(/\bCVS\b|~$|\.svn/)
 
 spec = Gem::Specification.new do |s|                                                                                                                 
@@ -41,7 +35,7 @@ spec = Gem::Specification.new do |s|
   s.autorequire  = 'caches'                                                                                                                          
   s.author = "Yurii Rashkovskii"                                                                                                                         
   s.email = "yrashk@verbdev.com"                                                                                                                      
-  s.homepage = "http://rashkovskii.com/articles/tag/caches"
+  s.homepage = "http://pad.verbdev.com/cachesrb"
   s.rubyforge_project = "cachesrb"                                                                                                 
 end                                                                                                                                                  
                                                                                                                                                      
@@ -49,4 +43,9 @@ Rake::GemPackageTask.new(spec) do |p|
   p.gem_spec = spec                                                                                                                                  
   p.need_tar = true                                                                                                                                  
   p.need_zip = true                                                                                                                                  
+end
+
+desc "Run all specifications"
+Spec::Rake::SpecTask.new('spec') do |t|
+  t.spec_files = FileList['spec/*.rb']
 end
