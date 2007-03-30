@@ -55,7 +55,7 @@ module CachesStorage
 
 
   module ClassVarById
-    
+
     def invalidate_all_caches(*opts)
       unless opts.empty?
         opthash = opts.first
@@ -119,9 +119,8 @@ module Caches
     setter = "#{name}="
 
     has_setter = public_method_defined? setter.to_sym
-
-    module_eval "alias #{saved_getter} #{name}"
-    module_eval "alias #{saved_setter} #{setter.to_sym}" if has_setter
+    alias_method saved_getter, name
+    alias_method(saved_setter, setter.to_sym) if has_setter
     storage = ( self.respond_to?(:caches_storage) ? self.caches_storage : nil ) || options[:storage] || CachesStorage::Instance
     module_eval do 
       include storage
@@ -144,5 +143,12 @@ module Caches
         end
       end
     end
+  end
+  def class_caches(*args)
+    class_eval do
+      class <<self
+        extend ::Caches
+      end
+    end.send :caches, *args
   end
 end

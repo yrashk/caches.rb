@@ -37,6 +37,24 @@ context "Random number in 0..100 range" do
 
 end
 
+context "CachedClassMethod class" do
+  class CachedClassMethod
+    def self.test
+      Time.now
+    end
+    extend Caches
+    class_caches :test
+  end
+  
+  specify "should cache class methods" do
+    oldtime = CachedClassMethod.test
+    sleep 2
+    CachedClassMethod.test.should == oldtime
+  end
+  
+  
+end
+
 context "CachedClass instance" do
 
   class CachedBase ; end ; CachedBase.extend Caches
