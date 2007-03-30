@@ -1,41 +1,5 @@
 require File.dirname(__FILE__) + '/../lib/caches'
 
-gem 'activesupport'
-require 'active_support'
-
-class Spec::Matchers::Be
-  def description
-     "be #{@comparison}#{@expected} #{@args.to_sentence}" 
-  end
-end
-
-context "Random number in 0..100 range" do 
-  
-  setup do
-    @random_number = rand(100)
-  end
-  
-  specify do
-    @random_number.should be < 100
-  end
-  
-  specify do
-    @random_number.should be >= 0
-  end
-  
-  specify do
-    @random_number.should_not be_nil
-  end
-  
-  specify do
-    @random_number.should be_between(0,100)
-  end
-
-  specify do
-    @random_number.should_not be_between(100,200)
-  end
-
-end
 
 context "CachedClassMethod class" do
   class CachedClassMethod
