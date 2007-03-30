@@ -151,12 +151,11 @@ module Caches
     end
   end
   def class_caches(*args)
-    r = class_eval do
+    class_eval do
       class <<self
-        extend ::Caches
+        extend ::Caches 
       end
-    end
-    r.send(:caches, *args) unless r.caches?(args.first)
+    end.send(:caches, *args)
   end
   
   def caches?(name)

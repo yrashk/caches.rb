@@ -15,6 +15,19 @@ context "CachedClassMethod class" do
     sleep 2
     CachedClassMethod.test.should == oldtime
   end
+
+  specify "should not cache class methods more than once" do
+    oldtime = CachedClassMethod.test
+    sleep 2
+    class CachedClassMethod
+      def self.test
+        Time.now
+      end
+      extend Caches
+      class_caches :test
+    end
+    CachedClassMethod.test.should == oldtime
+  end
   
   
 end
