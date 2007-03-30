@@ -156,10 +156,10 @@ module Caches
         extend ::Caches
       end
     end
-    r.send(:caches, *args) unless r.cached?(args.first)
+    r.send(:caches, *args) unless r.caches?(args.first)
   end
   
-  def cached?(name)
+  def caches?(name)
     self.cached_methods.has_key? name
   end
 end
