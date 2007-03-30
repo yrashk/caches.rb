@@ -151,14 +151,13 @@ module Caches
     end
   end
   def class_caches(*args)
-    class_eval do
+    r = class_eval do
       class <<self
         extend ::Caches
       end
-    end.send(:caches, *args) unless cached?(args.first)
+    end
+    r.send(:caches, *args) unless r.cached?(args.first)
   end
-  
-  private
   
   def cached?(name)
     self.cached_methods.has_key? name
