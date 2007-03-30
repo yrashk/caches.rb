@@ -110,8 +110,13 @@ module CachesConfig
   def caches_storage
     @@caches_storage
   end
+  
 end
 module Caches
+  def cached_methods
+    @@cached_methods ||= {}
+  end
+
   def caches(name,options = { :timeout => 60})
     sanitized_name = name.to_s.delete('?')
     saved_getter = "getter_#{name}"
@@ -122,6 +127,7 @@ module Caches
     alias_method saved_getter, name
     alias_method(saved_setter, setter.to_sym) if has_setter
     storage = ( self.respond_to?(:caches_storage) ? self.caches_storage : nil ) || options[:storage] || CachesStorage::Instance
+    self.cached_methods[name] = options
     module_eval do 
       include storage
 
@@ -149,6 +155,12 @@ module Caches
       class <<self
         extend ::Caches
       end
-    end.send :caches, *args
+    end.send(:caches, *args) unless cached?(args.first)
+  end
+  
+  private
+  
+  def cached?(name)
+    self.cached_methods.has_key? name
   end
 end
