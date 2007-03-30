@@ -55,6 +55,7 @@ module CachesStorage
 
 
   module ClassVarById
+    
     def invalidate_all_caches(*opts)
       unless opts.empty?
         opthash = opts.first
@@ -117,7 +118,7 @@ module Caches
     saved_setter = "setter_#{name}"
     setter = "#{name}="
 
-    has_setter = new.respond_to? setter.to_sym
+    has_setter = public_method_defined? setter.to_sym
 
     module_eval "alias #{saved_getter} #{name}"
     module_eval "alias #{saved_setter} #{setter.to_sym}" if has_setter
