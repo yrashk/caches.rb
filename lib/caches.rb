@@ -1,89 +1,115 @@
-class String
-  def starts_with?(prefix)                                                                                                                     
-    prefix = prefix.to_s                                                                                                                       
-    self[0, prefix.length] == prefix                                                                                                     
-  end
+require 'rubygems'
+gem 'activesupport'
+require 'active_support'
+
+begin
+  require 'memcache'
+rescue
 end
-
-module CachesStorage
-  module Instance
-
-    protected
-
-    def _propcache
-      @propcache
-    end
-
-    def _propcache=(v)
-      @propcache=v
-    end
-
-    def _call_key(name,*args)
-      "#{name}#{args.hash}"
-    end
-
-    def _object_key(name)
-      "#{name}"
-    end
-
-  end
-
-  module Global
-
-    protected
-
-    def _propcache
-      $cachesrb_propcache ||= {}
-    end
-
-    def _propcache=(v)
-      $cachesrb_propcache=v
-    end
-
-    def _call_key(name,*args)
-      "#{self.class.name}#{name}#{args.hash}"
-    end
-
-    def _object_key(name)
-      "#{self.class.name}#{name}"
-    end
-
-  end
-
-
-  module ClassVarById
-
-
-    protected
-
-    def _propcache
-      @@propcache ||= {}
-    end
-
-    def _propcache=(v)
-      @@propcache=v
-    end
-
-    def _call_key(name,*args)
-      "#{name}#{args.hash}_#{self.id}"
-    end
-
-    def _object_key(name)
-      "#{name}_#{self.id}"
-    end
-
-
-  end
-end
-
-
 module Caches
+  module Helper
+
+    module Default
+      def cachesrb_method_key(name,*args)
+        "#{name}#{args.hash}"
+      end
+
+      def cachesrb_object_key(name)
+        "#{name}"
+      end
+    end
+    module Class
+      def cachesrb_method_key(name,*args)
+        "#{self.class.name}#{name}#{args.hash}"
+      end
+
+      def cachesrb_object_key(name)
+        "#{self.class.name}#{name}"
+      end
+    end
+    module PerID
+
+      protected
+
+      def cachesrb_method_key(name,*args)
+        "#{name}#{args.hash}_#{self.id}"
+      end
+
+      def cachesrb_object_key(name)
+        "#{name}_#{self.id}"
+      end
+
+    end
+  end
+
+  module Storage
+    module Instance
+
+      protected
+
+      attr_accessor :cachesrb_cache
+
+      include ::Caches::Helper::Default
+
+    end
+
+    module Global
+
+      protected
+
+      def cachesrb_cache
+        $cachesrbcachesrb_cache ||= {}
+      end
+
+      def cachesrb_cache=(v)
+        $cachesrbcachesrb_cache=v
+      end
+
+      include ::Caches::Helper::Class
+
+    end
+
+
+    module Class
+
+      protected
+
+      def cachesrb_cache
+        @@cachesrb_cache ||= {}
+      end
+
+      def cachesrb_cache=(v)
+        @@cachesrb_cache=v
+      end
+
+      include ::Caches::Helper::Default
+
+    end
+
+    module MemCached
+
+      protected
+
+      def cachesrb_cache
+        @cache ||= MemCache::new cachesrb_storage_options[:host], cachesrb_storage_options
+      end
+
+      def cachesrb_cache=(v)
+        @cache ||= MemCache::new cachesrb_storage_options[:host], cachesrb_storage_options
+        @cache=v
+      end
+
+      include ::Caches::Helper::Class
+
+    end
+  end
+
   def cached_methods
     @@cached_methods ||= {}
   end
 
   def caches(name,options = {})
-    options = { :timeout => 60}.merge options
+    options.reverse_merge! :timeout => 60
     sanitized_name = name.to_s.delete('?')
     saved_getter = "getter_#{name}"
     saved_setter = "setter_#{name}"
@@ -94,7 +120,7 @@ module Caches
     alias_method(saved_setter, setter.to_sym) if has_setter
     self.cached_methods[name] = options
     module_eval do 
-      include CachesStorage::Instance unless protected_method_defined?(:_propcache)
+      include Storage::Instance unless protected_method_defined?(:cachesrb_cache)
 
       public
 
@@ -104,32 +130,32 @@ module Caches
           except = opthash[:except]
           if except
             except = [except] unless except.kind_of? Enumerable
-            self._propcache.each_pair {|k,v| self._propcache[k] = nil unless except.any? {|exception| k.starts_with?(exception.to_s)} }
+            self.cachesrb_cache.each_pair {|k,v| self.cachesrb_cache[k] = nil unless except.any? {|exception| k.starts_with?(exception.to_s)} }
           end
         else
-          self._propcache = {}
+          self.cachesrb_cache = {}
         end
       end
 
       define_method("invalidate_#{sanitized_name}_cache") do |*args|
-        self._propcache ||= {}
-        key = _call_key(name,*args)
-        self._propcache[key] = nil
+        self.cachesrb_cache ||= {}
+        key = cachesrb_method_key(name,*args)
+        self.cachesrb_cache[key] = nil
       end
 
       define_method("invalidate_all_#{sanitized_name}_caches") do
-        self._propcache ||= {}
-        key = _object_key(name)
-        self._propcache.keys.each {|k| self._propcache[k] = nil if k.starts_with?(key) }
+        self.cachesrb_cache ||= {}
+        key = cachesrb_object_key(name)
+        self.cachesrb_cache.keys.each {|k| self.cachesrb_cache[k] = nil if k.starts_with?(key) }
       end			
 
       define_method("#{name}") do |*args|
-        self._propcache ||= {}
-        key = _call_key(name,*args)
-        cached = self._propcache[key]
+        self.cachesrb_cache ||= {}
+        key = cachesrb_method_key(name,*args)
+        cached = self.cachesrb_cache[key]
         unless cached
-          self._propcache[key] = { :value => self.send(saved_getter.to_sym,*args), :expires_at => Time.now.to_i + options[:timeout]}
-          return self._propcache[key][:value]
+          self.cachesrb_cache[key] = { :value => self.send(saved_getter.to_sym,*args), :expires_at => Time.now.to_i + options[:timeout]}
+          return self.cachesrb_cache[key][:value]
         else
           unless Time.now.to_i > cached[:expires_at]
             cached[:value]
@@ -158,18 +184,30 @@ module Caches
     c
   end
 
-  def class_cache_storage(storage)
-    class_eval %{
+  def class_cache_storage(storage,options={})
+    c = class_eval %{
       class <<self
         include #{storage}
       end
     }
+    c.class_eval do 
+      protected
+      define_method("cachesrb_storage_options") do
+        options
+      end
+    end
   end
-  
-  def instance_cache_storage(storage)
-    class_eval %{
-        include #{storage}
+
+  def instance_cache_storage(storage,options={})
+    c = class_eval %{
+      include #{storage}
     }
+    c.class_eval do 
+      protected
+      define_method("cachesrb_storage_options") do
+        options
+      end
+    end
   end
 
   def caches?(name)

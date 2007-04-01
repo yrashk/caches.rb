@@ -4,8 +4,10 @@ require File.dirname(__FILE__) + '/../lib/caches'
 
 context "ActiveRecord instance" do
   ActiveRecord::Base.extend Caches
-  ActiveRecord::Base.instance_cache_storage CachesStorage::ClassVarById
-
+  ActiveRecord::Base.instance_cache_storage Caches::Storage::Class
+  ActiveRecord::Base.class_eval do
+    include Caches::Helper::PerID
+  end
   
   class Model < ActiveRecord::Base
     attr_reader :accessor_counter

@@ -16,7 +16,7 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')                                                                                                             
 end
 
-PKG_VERSION = "0.3.0"                                                                                                                                
+PKG_VERSION = "0.4.0"                                                                                                                                
 PKG_NAME = "cachesrb"                                                                                                                                  
 PKG_FILE_NAME = "#{PKG_NAME}-#{PKG_VERSION}"                                                                                                         
                                                                                                                                                      
@@ -36,7 +36,8 @@ spec = Gem::Specification.new do |s|
   s.author = "Yurii Rashkovskii"                                                                                                                         
   s.email = "yrashk@verbdev.com"                                                                                                                      
   s.homepage = "http://pad.verbdev.com/cachesrb"
-  s.rubyforge_project = "cachesrb"                                                                                                 
+  s.rubyforge_project = "cachesrb"         
+  s.add_dependency 'activesupport'
 end                                                                                                                                                  
                                                                                                                                                      
 Rake::GemPackageTask.new(spec) do |p|                                                                                                                

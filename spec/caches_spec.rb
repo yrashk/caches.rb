@@ -18,7 +18,7 @@ context "CachedClassMethod class" do
       Time.now
     end
     extend Caches
-    class_cache_storage CachesStorage::Global
+    class_cache_storage Caches::Storage::Global # MemCached, :host => 'localhost:11211', :namespace => 'rails'
     class_caches :test
   end}
   
