@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../lib/caches'
 
+gem 'activesupport'
+require 'active_support'
 
 context "CachedClassMethod class" do
   class CachedClassMethod
@@ -10,25 +12,37 @@ context "CachedClassMethod class" do
     class_caches :test
   end
   
+  Global_cached_class = %{class GlobalCachedClassMethod
+    def self.test
+      Time.now
+    end
+    extend Caches
+    class_caches_with_storage CachesStorage::Global, :test
+  end}
+  
+  eval Global_cached_class
+  
   specify "should cache class methods" do
     oldtime = CachedClassMethod.test
-    sleep 2
+    Time.stub!(:now).and_return oldtime+10
     CachedClassMethod.test.should == oldtime
-  end
-
-  specify "should not cache class methods more than once" do
-    oldtime = CachedClassMethod.test
-    sleep 2
-    class CachedClassMethod
-      def self.test
-        Time.now
-      end
-      extend Caches
-      class_caches :test
-    end
-    CachedClassMethod.test.should == oldtime
+    reset_time_now
   end
   
+  specify "should not cache class methods more than once (imitating Rails development mode class reloading)" do
+    oldtime = GlobalCachedClassMethod.test
+    Time.stub!(:now).and_return oldtime+10
+    Class.remove_class GlobalCachedClassMethod
+    eval Global_cached_class
+    GlobalCachedClassMethod.test.should == oldtime
+    reset_time_now
+  end
+
+  private
+
+  def reset_time_now
+    Time.stub!(:now).and_return { @time_now.call }
+  end
   
 end
 
@@ -89,6 +103,7 @@ context "CachedClass instance" do
     val = @cached.accessor
     @cached.accessor_counter.should == 2
   end
+
 
   specify "should remember values for a non-default interval" do
     val = @cached.accessor2

@@ -3,9 +3,11 @@ module ActiveRecord ; class Base ; end ; end
 require File.dirname(__FILE__) + '/../lib/caches'
 
 context "ActiveRecord instance" do
-  ActiveRecord::Base.extend CachesConfig
   ActiveRecord::Base.extend Caches
-  ActiveRecord::Base.caches_storage = CachesStorage::ClassVarById
+  ActiveRecord::Base.class_eval do
+     include CachesStorage::ClassVarById
+   end
+
   
   class Model < ActiveRecord::Base
     attr_reader :accessor_counter

@@ -2,8 +2,9 @@ require 'caches'
 
 begin
 	Kernel.const_get :ActiveRecord
-  ActiveRecord::Base.extend CachesConfig
   ActiveRecord::Base.extend Caches
-  ActiveRecord::Base.caches_storage = CachesStorage::ClassVarById
+  ActiveRecord::Base.class_eval do
+     include CachesStorage::ClassVarById
+   end
 rescue
 end	
