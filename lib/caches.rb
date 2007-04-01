@@ -27,7 +27,7 @@ module CachesStorage
     end
 
   end
-  
+
   module Global
 
     protected
@@ -147,7 +147,7 @@ module Caches
       end
     end
   end
-  
+
   def class_caches(*args)
     c = class_eval do
       class <<self
@@ -158,13 +158,13 @@ module Caches
     c
   end
 
-  def class_caches_with_storage(storage,*args)
-    class_caches(*args).class_eval do
-      include storage
-    end
+  def class_storage(storage)
+    class_eval %{
+      class <<self
+        include #{storage}
+      end
+    }
   end
-
-
 
   def caches?(name)
     self.cached_methods.has_key? name

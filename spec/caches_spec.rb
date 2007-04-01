@@ -17,7 +17,8 @@ context "CachedClassMethod class" do
       Time.now
     end
     extend Caches
-    class_caches_with_storage CachesStorage::Global, :test
+    class_storage CachesStorage::Global
+    class_caches :test
   end}
   
   eval Global_cached_class
