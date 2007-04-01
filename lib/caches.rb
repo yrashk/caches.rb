@@ -158,11 +158,17 @@ module Caches
     c
   end
 
-  def class_storage(storage)
+  def class_cache_storage(storage)
     class_eval %{
       class <<self
         include #{storage}
       end
+    }
+  end
+  
+  def instance_cache_storage(storage)
+    class_eval %{
+        include #{storage}
     }
   end
 

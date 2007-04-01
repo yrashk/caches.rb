@@ -4,9 +4,7 @@ require File.dirname(__FILE__) + '/../lib/caches'
 
 context "ActiveRecord instance" do
   ActiveRecord::Base.extend Caches
-  ActiveRecord::Base.class_eval do
-     include CachesStorage::ClassVarById
-   end
+  ActiveRecord::Base.instance_cache_storage CachesStorage::ClassVarById
 
   
   class Model < ActiveRecord::Base
