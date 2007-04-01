@@ -154,7 +154,7 @@ module Caches
         key = cachesrb_method_key(name,*args)
         cached = self.cachesrb_cache[key]
         unless cached
-          self.cachesrb_cache[key] = { :value => self.send(saved_getter.to_sym,*args), :expires_at => Time.now.to_i + options[:timeout]}
+          self.cachesrb_cache[key] ||= { :value => self.send(saved_getter.to_sym,*args), :expires_at => Time.now.to_i + options[:timeout]}
           return self.cachesrb_cache[key][:value]
         else
           unless Time.now.to_i > cached[:expires_at]
