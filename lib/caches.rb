@@ -4,7 +4,7 @@ require 'active_support'
 
 begin
   require 'memcache'
-rescue
+rescue MissingSourceFile, LoadError
 end
 module Caches
   module Helper
