@@ -11,7 +11,7 @@ module Caches
 
     module Default
       def cachesrb_method_key(name,*args)
-        "#{name}#{args.hash}"
+        "#{name}#{Marshal.dump(args)}"
       end
 
       def cachesrb_object_key(name)
@@ -20,7 +20,7 @@ module Caches
     end
     module Class
       def cachesrb_method_key(name,*args)
-        "#{self.class.name}#{name}#{args.hash}"
+        "#{self.class.name}#{name}#{Marshal.dump(args)}"
       end
 
       def cachesrb_object_key(name)
@@ -32,7 +32,7 @@ module Caches
       protected
 
       def cachesrb_method_key(name,*args)
-        "#{name}#{args.hash}_#{self.id}"
+        "#{name}#{Marshal.dump(args)}_#{self.id}"
       end
 
       def cachesrb_object_key(name)

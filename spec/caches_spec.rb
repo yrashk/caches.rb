@@ -75,7 +75,7 @@ context "CachedClass instance" do
     caches :accessor
     caches :accessor2, :timeout => 120
 
-    def method_with_args(a,b)
+    def method_with_args(a,b=nil)
       "#{a}#{b}#{Time.now}"
     end
 
@@ -162,6 +162,17 @@ context "CachedClass instance" do
     val.should == val1    
   end
 
+  specify "should cache methods with arguments (Hash)" do
+    val = @cached.method_with_args({"a" => "b"})
+    valA = @cached.method_with_args({"a" => "C"})
+    val.should_not == valA
+    OldTime = Time
+    now = Time.now
+    Time.stub!(:now).and_return now + 1    
+    val1 = @cached.method_with_args({"a" => "b"})
+    reset_time_now
+    val.should == val1    
+  end
 
   specify "should invalidate cache for method with arguments if asked explicitely" do
     # Invalidating with another arguments does not work:
