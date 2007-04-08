@@ -204,6 +204,14 @@ module Caches
     c = class_eval do
       class <<self
         extend ::Caches 
+        def remove_methods_on_reset?
+          false
+        end
+
+        def remove_variables_on_reset?
+          false
+        end
+        
       end
     end
     c.send(:caches, *args)
