@@ -203,6 +203,14 @@ module Caches
   def class_caches(*args)
     c = class_eval do
       class <<self
+        def remove_methods_on_reset?
+          false
+        end
+        
+        def remove_variables_on_reset?
+          false
+        end
+        
         extend ::Caches         
       end
     end
