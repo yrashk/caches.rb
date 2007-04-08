@@ -177,12 +177,6 @@ module Caches
           self.cachesrb_cache[key] ||= { :value => self.send(saved_getter.to_sym,*args), :expires_at => Time.now.to_i + options[:timeout]}
           return self.cachesrb_cache[key][:value]
         else
-          # unless eval(cached[:value].class.name)  == cached[:value].class
-          #   obj = cached[:value]
-          #   cached[:value] = eval(obj.class.name).new
-          #   obj.instance_variables.each {|v| cached[:value].instance_variable_set("@#{v}",obj.instance_variable_get("@#{v}"))}
-          #   obj.instance_methods(false).each {|m| obj.method(m.to_sym).unbind.bind cached[:value]  }
-          # end
           unless Time.now.to_i > cached[:expires_at]
             cached[:value]
           else
