@@ -17,7 +17,7 @@ module Caches
       false
     end
     
-    def self.reset_subclasses #:nodoc:
+    def reset_subclasses #:nodoc:
       nonreloadables = []
       subclasses.each do |klass|
         unless Dependencies.autoloaded? klass

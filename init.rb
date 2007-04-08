@@ -6,6 +6,7 @@ begin
   ActiveRecord::Base.instance_cache_storage Caches::Storage::Class
   ActiveRecord::Base.class_eval do
     include Caches::Helper::PerID
+    include Caches::ActiveRecordWorkaround
   end
 rescue
 end	
