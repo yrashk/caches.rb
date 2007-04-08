@@ -7,6 +7,5 @@ begin
   ActiveRecord::Base.class_eval do
     include Caches::Helper::PerID
   end
-  
 rescue
 end	
