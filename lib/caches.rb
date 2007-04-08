@@ -134,6 +134,15 @@ module Caches
       include Storage::Instance unless protected_method_defined?(:cachesrb_cache)
 
       public
+      
+      def self.remove_methods_on_reset?
+        false
+      end
+
+      def self.remove_variables_on_reset?
+        false
+      end
+      
 
       def invalidate_all_caches(*opts)
         unless opts.empty?
