@@ -8,11 +8,11 @@ begin
     include Caches::Helper::PerID
 
     def self.remove_methods_on_reset?
-      true
+      false
     end
     
     def self.remove_variables_on_reset?
-      true
+      false
     end
     
     def self.reset_subclasses #:nodoc:
