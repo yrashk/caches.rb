@@ -27,6 +27,16 @@ module Caches
         "#{self.class.name}#{name}"
       end
     end
+    module Object
+      def cachesrb_method_key(name,*args)
+        "#{self.name}#{name}#{Marshal.dump(args)}"
+      end
+
+      def cachesrb_object_key(name)
+        "#{self.name}#{name}"
+      end
+    end
+
     module PerID
 
       protected
@@ -65,7 +75,7 @@ module Caches
         $cachesrbcachesrb_cache=v
       end
 
-      include ::Caches::Helper::Class
+      include ::Caches::Helper::Object
 
     end
 
