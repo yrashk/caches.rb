@@ -23,11 +23,11 @@ module Caches
 
     module MemCached
       def cachesrb_method_key(name,*args)
-        Base64.encode64("#{name}#{Marshal.dump(args)}")
+        Base64.encode64("#{name}#{Marshal.dump(args)}").gsub(/\s/,"_")
       end
 
       def cachesrb_object_key(name)
-        Base64.encode64("#{name}")
+        Base64.encode64("#{name}").gsub(/\s/,"_")
       end
     end
     
