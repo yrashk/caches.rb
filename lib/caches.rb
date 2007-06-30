@@ -1,3 +1,4 @@
+require 'base64'
 require 'rubygems'
 gem 'activesupport'
 require 'active_support'
@@ -19,6 +20,17 @@ module Caches
         "#{name}"
       end
     end
+
+    module MemCached
+      def cachesrb_method_key(name,*args)
+        Base64.encode64("#{name}#{Marshal.dump(args)}")
+      end
+
+      def cachesrb_object_key(name)
+        Base64.encode64("#{name}")
+      end
+    end
+    
     module Class
       def cachesrb_method_key(name,*args)
         "#{self.class.name}#{name}#{Marshal.dump(args)}"
@@ -110,7 +122,7 @@ module Caches
         @cache=v
       end
 
-      include ::Caches::Helper::Class
+      include ::Caches::Helper::MemCached
 
     end
   end
