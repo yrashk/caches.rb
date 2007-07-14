@@ -30,7 +30,7 @@ module Caches
         Base64.encode64("#{name}").gsub(/\s/,"_")
       end
     end
-    
+
     module Class
       def cachesrb_method_key(name,*args)
         "#{self.class.name}#{name}#{Marshal.dump(args)}"
@@ -184,7 +184,19 @@ module Caches
       define_method("#{name}") do |*args|
         self.cachesrb_cache ||= {}
         key = cachesrb_method_key(name,*args)
-        cached = self.cachesrb_cache[key]
+        got_value = false
+        until got_value
+          begin
+            cached = self.cachesrb_cache[key]
+            got_value = true
+          rescue ArgumentError
+            begin
+              $!.message.split.last.constantize
+            rescue NameError
+              throw $!
+            end
+          end
+        end
         unless cached
           self.cachesrb_cache[key] ||= { :value => self.send(saved_getter.to_sym,*args), :expires_at => Time.now.to_i + options[:timeout]}
           return self.cachesrb_cache[key][:value]
