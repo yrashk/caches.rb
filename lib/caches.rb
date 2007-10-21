@@ -1,4 +1,4 @@
-require 'base64'
+require 'digest/sha1'
 require 'rubygems'
 gem 'activesupport'
 require 'active_support'
@@ -23,11 +23,11 @@ module Caches
 
     module MemCached
       def cachesrb_method_key(name,*args)
-        Base64.encode64("#{name}#{Marshal.dump(args)}").gsub(/\s/,"_")
+         Digest::SHA1.hexdigest("#{name}#{Marshal.dump(args)}")
       end
 
       def cachesrb_object_key(name)
-        Base64.encode64("#{name}").gsub(/\s/,"_")
+         Digest::SHA1.hexdigest("#{name}")
       end
     end
 
