@@ -199,6 +199,7 @@ module Caches
         end
         unless cached
           self.cachesrb_cache[key] ||= { :value => self.send(saved_getter.to_sym,*args), :expires_at => Time.now.to_i + options[:timeout]}
+          raise "memcached was not able to store object, it may be too large" unless self.cachesrb_cache[key]
           return self.cachesrb_cache[key][:value]
         else
           unless Time.now.to_i > cached[:expires_at]
