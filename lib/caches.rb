@@ -32,6 +32,25 @@ module Caches
       end
     end
 
+    module File
+      def cachesrb_method_key(name,*args)
+         segmentize(Digest::SHA1.hexdigest("#{name}#{Marshal.dump(args)}"))
+      end
+
+      def cachesrb_object_key(name)
+         segmentize(Digest::SHA1.hexdigest("#{name}"))
+      end
+      
+      private
+      
+      def segmentize(k)
+        k[0,2] + "/" + k[2,2] + "/" + k[4,k.length]
+      end
+    end
+    
+    
+    
+
     module Class
       def cachesrb_method_key(name,*args)
         "#{self.class.name}#{name}#{Marshal.dump(args)}"
@@ -142,7 +161,7 @@ module Caches
         @cache=v
       end
 
-      include ::Caches::Helper::MemCached
+      include ::Caches::Helper::File
       
       class FileCache
         def initialize(path)
@@ -151,6 +170,7 @@ module Caches
         end
         def []=(k,v)
           filename = ::File.join(@path, "#{k}.cachesrb")
+          FileUtils.mkdir_p(::File.dirname(filename))
           if v.nil? && ::File.exists?(filename)
             ::File.unlink(filename)
             return
@@ -167,13 +187,13 @@ module Caches
         end
         
         def clear
-          Dir["#{@path}/*.cachesrb"].map do |filename|
+          Dir["#{@path}/**/**/*.cachesrb"].map do |filename|
             ::File.unlink(filename)
           end
         end
         
         def keys
-          Dir["#{@path}/*.cachesrb"].map do |filename|
+          Dir["#{@path}/**/**/*.cachesrb"].map do |filename|
             filename.split(/[\\,\.]/)[1]
           end
         end
