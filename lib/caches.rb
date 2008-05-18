@@ -2,6 +2,7 @@ require 'digest/sha1'
 require 'rubygems'
 gem 'activesupport'
 require 'active_support'
+require 'fileutils'
 
 begin
   require 'memcache'
@@ -125,6 +126,71 @@ module Caches
       include ::Caches::Helper::MemCached
 
     end
+
+    module File
+      
+      mattr_accessor :path
+
+      protected
+
+      def cachesrb_cache
+        @cache ||= FileCache.new(cachesrb_storage_options[:path] || ::Caches::Storage::File.path)
+      end
+
+      def cachesrb_cache=(v)
+        @cache ||= FileCache.new(cachesrb_storage_options[:path] || ::Caches::Storage::File.path)
+        @cache=v
+      end
+
+      include ::Caches::Helper::MemCached
+      
+      class FileCache
+        def initialize(path)
+          @path = path
+          FileUtils.mkdir_p @path
+        end
+        def []=(k,v)
+          filename = ::File.join(@path, "#{k}.cachesrb")
+          if v.nil? && ::File.exists?(filename)
+            ::File.unlink(filename)
+            return
+          end
+          ::File.open(filename,'w') do |f|
+            f.write Marshal.dump(v)
+          end
+        end
+
+        def [](k)
+          filename = ::File.join(@path, "#{k}.cachesrb")
+          return nil unless ::File.exists?(filename)
+          Marshal.load(IO.read(filename))
+        end
+        
+        def clear
+          Dir["#{@path}/*.cachesrb"].map do |filename|
+            ::File.unlink(filename)
+          end
+        end
+        
+        def keys
+          Dir["#{@path}/*.cachesrb"].map do |filename|
+            filename.split(/[\\,\.]/)[1]
+          end
+        end
+        
+        def each
+          keys.each do |k|
+            yield(k, self[k])
+          end
+        end
+        alias :each_pair :each
+        
+      end
+
+    end
+
+
+
   end
 
   def cached_methods
@@ -165,7 +231,7 @@ module Caches
             self.cachesrb_cache.each_pair {|k,v| self.cachesrb_cache[k] = nil unless except.any? {|exception| k.starts_with?(exception.to_s)} }
           end
         else
-          self.cachesrb_cache = {}
+          self.cachesrb_cache.clear
         end
       end
 
