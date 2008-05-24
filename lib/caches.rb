@@ -24,21 +24,37 @@ module Caches
 
     module MemCached
       def cachesrb_method_key(name,*args)
-         Digest::SHA1.hexdigest("#{name}#{Marshal.dump(args)}")
+        if self.is_a?(::Class)
+           Digest::SHA1.hexdigest("#{self.name}#{name}#{Marshal.dump(args)}")
+         else
+           Digest::SHA1.hexdigest("#{self.class.name}#{name}#{Marshal.dump(args)}")
+         end
       end
 
       def cachesrb_object_key(name)
-         Digest::SHA1.hexdigest("#{name}")
+        if self.is_a?(::Class)
+          Digest::SHA1.hexdigest("#{self.name}#{name}")
+        else
+          Digest::SHA1.hexdigest("#{self.class.name}#{name}")
+        end
       end
     end
 
     module File
       def cachesrb_method_key(name,*args)
-         segmentize(Digest::SHA1.hexdigest("#{name}#{Marshal.dump(args)}"))
+        if self.is_a?(::Class)
+           segmentize(Digest::SHA1.hexdigest("#{self.name}#{name}#{Marshal.dump(args)}"))
+         else
+           segmentize(Digest::SHA1.hexdigest("#{self.class.name}#{name}#{Marshal.dump(args)}"))
+         end
       end
 
       def cachesrb_object_key(name)
-         segmentize(Digest::SHA1.hexdigest("#{name}"))
+        if self.is_a?(::Class)
+          segmentize(Digest::SHA1.hexdigest("#{self.name}#{name}"))
+        else
+          segmentize(Digest::SHA1.hexdigest("#{self.class.name}#{name}"))
+       end
       end
       
       private
