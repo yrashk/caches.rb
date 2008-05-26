@@ -9,6 +9,18 @@ begin
 rescue MissingSourceFile, LoadError
 end
 module Caches
+  
+  def self.deactivate!
+    ::Caches.module_eval do
+      def caches(*args) ; end
+      def class_caches(*args) ; end
+      def class_cache_storage(*args) ; end
+      def instance_cache_storage(*args) ; end
+      def caches?(*args) ; false ; end
+      def class_caches?(*args) ; false ; end
+      def cached_methods(*args) ; {} ; end
+    end
+  end
 
   module Helper
 
