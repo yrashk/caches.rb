@@ -1,6 +1,5 @@
 require 'digest/sha1'
 require 'rubygems'
-gem 'activesupport'
 require 'active_support'
 require 'fileutils'
 
